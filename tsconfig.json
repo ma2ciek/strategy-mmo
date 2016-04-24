@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "outDir": "./lib",
+    "preserveConstEnums": true,
+    "removeComments": true
+  },
+  "filesGlob": [
+    "typings/main.d.ts",
+    "src/**/*.ts"
+  ],
+  "files": [
+    "typings/main.d.ts",
+    "src/greeter.ts"
+  ]
+}
