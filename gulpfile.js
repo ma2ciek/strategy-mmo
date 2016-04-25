@@ -2,74 +2,78 @@
 
 const gulp = require('gulp-help')(require('gulp'));
 const tslint = require('gulp-tslint');
-const exec = require('child_process').exec;
-const jasmine = require('gulp-jasmine');
-const tsconfig = require('gulp-tsconfig-files');
-const path = require('path');
-const inject = require('gulp-inject');
+const mocha = require('gulp-mocha');
 const gulpSequence = require('gulp-sequence');
 const del = require('del');
-const dtsGenerator = require('dts-generator');
+const ts = require('gulp-typescript');
+const sourcemaps = require('gulp-sourcemaps');
+const merge = require('merge2');
+
 require('dotbin');
 
-const tsFilesGlob = (function (c) {
-  return c.filesGlob || c.files || '**/*.ts';
-})(require('./tsconfig.json'));
-
-const appName = (function (p) {
-  return p.name;
-})(require('./package.json'));
-
-gulp.task('update-tsconfig', 'Update files section in tsconfig.json', function () {
-  gulp.src(tsFilesGlob).pipe(tsconfig());
+const serverConfig = ts.createProject('./tsconfig.json', {
+    declaration: true
 });
 
-gulp.task('clean', 'Cleans the generated js files from lib directory', function () {
-  return del([
-    'lib/**/*'
-  ]);
+const clientConfig = ts.createProject('./tsconfig.json', {
+    module: 'umd',
+    declaration: true
 });
 
-gulp.task('tslint', 'Lints all TypeScript source files', function () {
-  return gulp.src(tsFilesGlob)
-    .pipe(tslint())
-    .pipe(tslint.report('verbose'));
+const testsConfig = ts.createProject('./tsconfig.json', {
+    module: 'require'
 });
 
-gulp.task('gen-def', 'Generate a single .d.ts bundle containing external module declarations exported from TypeScript module files', function (cb) {
-  return dtsGenerator.default({
-    name: appName,
-    project: '.',
-    out: './lib/' + appName + '.d.ts',
-    exclude: ['node_modules/**/*.d.ts', 'typings/**/*.d.ts']
-  });
+const serverFiles = ['typings/main.d.ts', 'src/**/*.ts'];
+const clientFiles = ['typings/browser.d.ts', 'public/**/*.ts'];
+const testsFiles = ['typings/browser.d.ts', 'test/**/*.ts'];
+const appName = require('./package.json').name;
+
+gulp.task('clean', 'Cleans the generated js files from build directory', function () {
+    return del(['build/**/**']);
 });
 
-gulp.task('_build', 'INTERNAL TASK - Compiles all TypeScript source files', function (cb) {
-  exec('tsc --version', function (err, stdout, stderr) {
-    console.log('TypeScript ', stdout);
-    if (stderr) {
-      console.log(stderr);
-    }
-  });
+gulp.task('lintServer', 'Lints all TypeScript source files', () =>
+    gulp.src(serverFiles)
+        .pipe(tslint())
+        .pipe(tslint.report('verbose'))
+);
 
-  return exec('tsc', function (err, stdout, stderr) {
-    console.log(stdout);
-    if (stderr) {
-      console.log(stderr);
-    }
-    cb(err);
-  });
+gulp.task('build-server', ['lintServer'], () => {
+    const result = gulp.src(serverFiles)
+        .pipe(ts(serverConfig))
+
+    return merge([
+        result.dts.pipe(gulp.dest('./build')),
+        result.js.pipe(gulp.dest('./build'))
+    ])
 });
 
-//run tslint task, then run update-tsconfig and gen-def in parallel, then run _build
-gulp.task('build', 'Compiles all TypeScript source files and updates module references', gulpSequence('tslint', ['update-tsconfig', 'gen-def'], '_build'));
+gulp.task('build-client', () => {
+    const result = gulp.src(clientFiles)
+        .pipe(ts(clientConfig))
 
-gulp.task('test', 'Runs the Jasmine test specs', ['build'], function () {
-  return gulp.src('test/*.js')
-    .pipe(jasmine());
+    return merge([
+        result.dts.pipe(gulp.dest('./public')),
+        result.js.pipe(gulp.dest('./public'))
+    ])
 });
 
-gulp.task('watch', 'Watches ts source files and runs build on change', function () {
-  gulp.watch('src/**/*.ts', ['build']);
+gulp.task('build-tests', () =>
+    gulp.src(testsFiles)
+        .pipe(ts(testsConfig))
+        .pipe(gulp.dest('./test'))
+);
+
+gulp.task('build', ['build-server', 'build-client', 'build-tests']);
+
+gulp.task('test', 'Runs the Jasmine test specs', () =>
+    gulp.src('test/**/*.js')
+        .pipe(mocha())
+);
+
+gulp.task('watch', 'Watches ts source files and runs build on change', () => {
+    gulp.watch('src/**/*.ts', ['build-server']);
+    gulp.watch('public/**/*.ts', ['build-client']);
+    gulp.watch('test/**/*.ts', ['build-tests']);
 });

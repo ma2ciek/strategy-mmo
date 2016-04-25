@@ -1,5 +1,9 @@
-coverage/
 node_modules/
 typings/
 npm-debug.log
 .vscode
+
+build/
+public/**/*.d.ts
+public/*.js
+test/*.js

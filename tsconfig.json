@@ -4,7 +4,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
-    "outDir": "./lib",
+    "outDir": "./build",
     "preserveConstEnums": true,
     "removeComments": true
   },
@@ -14,6 +14,9 @@
   ],
   "files": [
     "typings/main.d.ts",
-    "src/greeter.ts"
+    "src/Manager.ts",
+    "src/User.ts",
+    "src/UserManager.ts",
+    "src/app.ts"
   ]
 }
