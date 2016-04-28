@@ -39,29 +39,21 @@ gulp.task('lintServer', 'Lints all TypeScript source files', () =>
         .pipe(tslint.report('verbose'))
 );
 
-gulp.task('build-server', ['lintServer'], () => {
-    const result = gulp.src(serverFiles)
-        .pipe(ts(serverConfig))
+const build = (files, config) => gulp.src(files).pipe(ts(config));
+const _merge = (result, dest) => merge([result.dts.pipe(gulp.dest(dest)), result.js.pipe(gulp.dest(dest))]);
 
-    return merge([
-        result.dts.pipe(gulp.dest('./build')),
-        result.js.pipe(gulp.dest('./build'))
-    ])
+gulp.task('build-server', ['lintServer'], () => {
+    const result = build(serverFiles, serverConfig);
+    return _merge(result, './build');
 });
 
 gulp.task('build-client', () => {
-    const result = gulp.src(clientFiles)
-        .pipe(ts(clientConfig))
-
-    return merge([
-        result.dts.pipe(gulp.dest('./public')),
-        result.js.pipe(gulp.dest('./public'))
-    ])
+    const result = build(clientFiles, clientConfig);
+    return _merge(result, '/public');
 });
 
 gulp.task('build-tests', () =>
-    gulp.src(testsFiles)
-        .pipe(ts(testsConfig))
+    build(testsFiles, testsConfig)
         .pipe(gulp.dest('./test'))
 );
 
