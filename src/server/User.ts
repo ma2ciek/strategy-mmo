@@ -1,15 +1,20 @@
 import * as winston from 'winston';
 import { EventEmitter } from 'events';
+import Player from './Player';
+import GameMap from './GameMap';
+import Town from '../shared/Town';
 
 export type Socket = SocketIO.Socket;
 
 export class User extends EventEmitter {
     private connections = 0;
     private socket: Socket;
+    private player: Player;
     private online = true;
 
-    constructor(socket: Socket) {
+    constructor(socket: Socket, private map: GameMap) {
         super();
+        this.player = new Player(map, socket.request.connection.remoteAddress);
         this.handleSocket(socket);
     }
 
@@ -17,10 +22,8 @@ export class User extends EventEmitter {
         this.socket = socket;
         this.online = true;
         this.socket.on('disconnect', this.onDisconnect.bind(this));
-        this.socket.on('keyup', (keyCode: number) =>
-            winston.log('info', this.getIp() + ' up: ' + keyCode))
-        this.socket.on('keydown', (keyCode: number) =>
-            winston.log('info', this.getIp() + ' down: ' + keyCode))
+        this.socket.emit('player', this.player.getData());
+        this.socket.emit('map', this.map.getData());
     }
 
     private onDisconnect() {
@@ -37,8 +40,13 @@ export class User extends EventEmitter {
         return this.online;
     }
 
-    public getIp() {
+    public getIp(): string {
         return this.socket.request.connection.remoteAddress;
+    }
+    
+    public updateResources() {
+        this.player.getTowns().map(town => town.updateResources());
+        this.socket.emit('player-update', this.player.getData())
     }
 }
 

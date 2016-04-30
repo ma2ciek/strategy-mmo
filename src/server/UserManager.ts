@@ -1,10 +1,16 @@
 import * as winston from 'winston';
-import Manager from './Manager';
+import Manager from '../shared/Manager';
 import User from './User';
+import GameMap from './GameMap';
 
 export type Socket = SocketIO.Socket;
 
 export class UserManager extends Manager<User> {
+
+    public static dependencies = ['gameMap'];
+
+    private gameMap: GameMap;
+
     public handle(socket: Socket) {
         const clientIp = <string>socket.request.connection.remoteAddress;
 
@@ -12,7 +18,7 @@ export class UserManager extends Manager<User> {
         let user = this.findBy(searchFn, clientIp);
 
         if (!user) {
-            user = new User(socket);
+            user = new User(socket, this.gameMap);
             this.handleGlobalEvents(user);
             this.list.push(user);
         } else {
@@ -28,6 +34,10 @@ export class UserManager extends Manager<User> {
 
     public getOnlineMembers() {
         return this.list.filter(u => u.isOnline());
+    }
+
+    public updateResources() {
+        this.list.forEach(user => user.updateResources());
     }
 }
 

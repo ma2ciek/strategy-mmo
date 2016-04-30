@@ -1,9 +1,7 @@
 {
     "rules": {
         "class-name": true,
-        "curly": true,
         "eofline": true,
-        "forin": true,
         "indent": [
             false
         ],
@@ -14,7 +12,6 @@
             140
         ],
         "no-arg": true,
-        "no-bitwise": true,
         "no-console": [
             true,
             "debug",
@@ -27,11 +24,10 @@
         "no-debugger": true,
         "no-duplicate-key": true,
         "no-duplicate-variable": true,
-        "no-empty": true,
         "no-eval": true,
         "no-string-literal": true,
         "no-switch-case-fall-through": true,
-        "no-trailing-comma": true,
+        "no-trailing-comma": false,
         "no-trailing-whitespace": true,
         "no-unused-expression": true,
         "no-unused-variable": false,
