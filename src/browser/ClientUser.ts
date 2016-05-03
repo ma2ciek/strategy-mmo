@@ -8,7 +8,6 @@ export class User {
     private y = 100;
     private activeTownIndex = 0;
     private view: TownModal;
-    private world = new World();
 
     private towns: Town[];
     private visibleArea: transfer.IDict;

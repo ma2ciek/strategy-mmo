@@ -15,12 +15,12 @@ export class Modal<T> {
     constructor(selector: string) {
         this.$container = $(selector);
         this.$container.on('click', () => this.hide());
+        this.show();
     }
 
     public render(data: T) {
         const compiledTemplate = this.template(data);
         this.$container.html(compiledTemplate);
-        this.$container.show();
     }
 
     protected hide() {
