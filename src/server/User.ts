@@ -22,7 +22,6 @@ export class User extends EventEmitter {
         this.socket = socket;
         this.online = true;
         this.socket.on('disconnect', this.onDisconnect.bind(this));
-        this.socket.emit('player', this.player.getData());
         this.socket.emit('map', this.map.getData());
     }
 

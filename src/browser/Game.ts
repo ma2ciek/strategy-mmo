@@ -1,28 +1,34 @@
 import * as io from 'socket.io';
 import * as transfer from '../shared/ITransfer';
-import ClientMap from './ClientMap';
-import ClientUser from './ClientUser';
-import * as creator from '../creator/Core';
+import WorldMap from './WorldMap';
+import UserInterface from './UserInterface';
+import { Component, ViewChild } from '@angular/core';
+import { User } from './User';
+
+@Component({
+    selector: 'app',
+    template: `
+        <gui #gui></gui>
+        <map #map></map>
+    `,
+    directives: [UserInterface, WorldMap]
+})
 
 export class Game {
-    private canvas: HTMLCanvasElement;
-    private ctx: CanvasRenderingContext2D;
-    private user: ClientUser;
-    private map: ClientMap;
-    private world: creator.World;
+    private socket: SocketIO.Server;
 
-    constructor(socket: SocketIO.Socket) {
-        this.canvas = <HTMLCanvasElement>document.querySelector('#c');
-        this.world = new creator.World(this.canvas);
+    @ViewChild(UserInterface) gui: UserInterface
+    @ViewChild('map') map: WorldMap;
 
-        socket.on('player', (data: transfer.IClientData) => {
-            this.user = new ClientUser(data);
+    constructor(user: User) {
+        this.socket = io();
+
+        this.socket.on('player-update', (data: transfer.IClientData) => {
+            user.update(data);
         });
-        
-        socket.on('player-update', (data: transfer.IClientData) => {
-            this.user.update(data);
+
+        this.socket.on('map', (data: transfer.IMapData) => {
+            this.map.setMap(data);
         });
     }
 }
-
-export default Game;

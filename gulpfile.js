@@ -37,12 +37,17 @@ gulp.task('lintServer', 'Lints all TypeScript source files', () =>
 const build = (files, config) => gulp.src(files).pipe(ts(config));
 const _merge = (result, dest) => merge([result.dts.pipe(gulp.dest(dest)), result.js.pipe(gulp.dest(dest))]);
 
-gulp.task('build-ts', () => {
-    const result = build(files, config);
-    return _merge(result, './build');
+gulp.task('watch', 'Watches ts source files and runs build on change', () => {
+    gulp.watch('src/**/*.ts', ['build']);
+    gulp.watch('test/**/*.ts', ['build-tests']);
 });
 
-gulp.task('build', ['build-ts'], () => 
+gulp.task('test', 'Runs the Jasmine test specs', () =>
+    gulp.src('test/**/*.js')
+        .pipe(mocha())
+);
+
+gulp.task('build', ['build-ts'], () =>
     sh.exec('node build/server.js')
 );
 
@@ -51,12 +56,22 @@ gulp.task('build-tests', () =>
         .pipe(gulp.dest('./test'))
 );
 
-gulp.task('test', 'Runs the Jasmine test specs', () =>
-    gulp.src('test/**/*.js')
-        .pipe(mocha())
-);
-
-gulp.task('watch', 'Watches ts source files and runs build on change', () => {
-    gulp.watch('src/**/*.ts', ['build']);
-    gulp.watch('test/**/*.ts', ['build-tests']);
+gulp.task('build-ts', () => {
+    const result = build(files, config);
+    return _merge(result, './build');
 });
+
+gulp.task('lib', () => merge(
+    gulp.src([
+        'node_modules/reflect-metadata/Reflect.js',
+        'node_modules/zone.js/dist/zone.js',
+        'node_modules/es6-shim/es6-shim.min.js',
+        'node_modules/systemjs/dist/system.js'
+    ]).pipe(gulp.dest('build/lib')),
+
+    gulp.src(['node_modules/@angular/**/*'])
+        .pipe(gulp.dest('build/lib/@angular')),
+        
+    gulp.src(['node_modules/rxjs/**/*'])
+        .pipe(gulp.dest('build/lib/rxjs'))
+));

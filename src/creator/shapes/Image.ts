@@ -11,7 +11,7 @@ export interface IImageOptions extends IShapeOptions {
 
 export interface IImage extends IShape, IImageOptions { }
 
-export default class _Image extends Shape implements IImage {
+export class Image extends Shape implements IImage {
     public src: string;
     private el: HTMLImageElement;
 
@@ -56,3 +56,5 @@ export default class _Image extends Shape implements IImage {
         };
     }
 }
+
+export default Image

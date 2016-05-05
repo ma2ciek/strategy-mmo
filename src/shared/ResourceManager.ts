@@ -6,7 +6,7 @@ export interface IResourceConfig {
 export const resources = [
     { name: 'wood', chance: 4 },
     { name: 'stone', chance: 2 },
-    { name: 'copper', chance: 1 },
+    { name: 'iron', chance: 1 },
 ];
 
 export class ResourceManager {

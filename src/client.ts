@@ -1,9 +1,7 @@
 'use strict';
 
-import * as io from 'socket.io';
-import Game from './browser/Game'; 
+import { Game } from './browser/Game'; 
+import { bootstrap } from '@angular/platform-browser-dynamic';
+import { User } from './browser/User';
 
-const socket = <any> io();
-
-document.addEventListener('DOMContentLoaded', () => new Game(socket));
-(document.readyState == 'complete') && new Game(socket);
+bootstrap(Game, [User]).catch((err: any) => console.error(err))

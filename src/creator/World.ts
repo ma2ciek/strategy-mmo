@@ -1,11 +1,11 @@
 import DirtRect from './DirtRect';
 import { IShape } from './shapes/Shape';
 import Draggability from './Draggability';
-import { IPoint, Point } from './utils/Point';
+import { IPoint } from './utils/Point';
 import LayerManager from './LayerManager';
 
 export interface IWorldConfig {
-    ontop?: boolean;
+    centralized?: boolean;
 }
 
 export default class World {
@@ -15,9 +15,9 @@ export default class World {
     private layerManager: LayerManager;
     private draggability: Draggability;
 
-    constructor(private canvas: HTMLCanvasElement) {
+    constructor(private canvas: HTMLCanvasElement, config?: IWorldConfig) {
 
-        this.dirtRect = new DirtRect();        
+        this.dirtRect = new DirtRect();
 
         this.ctx = canvas.getContext('2d');
         this.addDraggability(canvas);
@@ -25,10 +25,10 @@ export default class World {
 
         window.addEventListener('resize', () => this.fixCanvasSize());
         this.fixCanvasSize();
-        
-        this.draw();        
+
+        this.draw();
     }
-    
+
     private fixCanvasSize() {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
@@ -79,4 +79,8 @@ export default class World {
         return result;
     }
 
+    public zoomToPoint(p: IPoint, zoom: number) {
+        // TODO
+        this.renderAll();
+    }
 }

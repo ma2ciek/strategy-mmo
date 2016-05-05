@@ -22,6 +22,10 @@ export class Point implements IPoint {
     public static sum(p1: IPoint, p2: IPoint) {
         return new Point(p1.x + p2.x, p1.y + p2.y);
     }
+    
+    public static multiply(p: Point, value: number) {
+        return new Point(p.x * value, p.y * value);
+    }
 }
 
 export default Point;

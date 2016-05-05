@@ -91,6 +91,10 @@ export class Town {
             this.resources[name] += resourceSpeed[name];
         }
     }
+    
+    public getResources() {
+        return this.resources;
+    }
 
     private getSpeed() {
         // TODO
