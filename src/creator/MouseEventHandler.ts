@@ -9,14 +9,14 @@ interface IMouseCallback {
     (e: MouseEvent): void;
 }
 
-export default class CanvasDragger extends EventEmitter<any> {
-    private mouseDown = false;
+export default class MouseEventHandler extends EventEmitter<any> {
+
+    private isMouseDown = false;
     private eventListeners: IMouseCallbacks = {
-        mousedown: this.onDragStart,
-        mouseup: this.onDrop,
-        mousemove: this.onDragging,
-        mouseout: this.onDrop,
-        contextmenu: this.preventDefault,
+        mousedown: this.onMouseDown,
+        mouseup: this.onMouseUp,
+        mousemove: this.onMouseMove,
+        mouseout: this.onMouseOut,
     };
 
     constructor(private container: HTMLCanvasElement) {
@@ -32,26 +32,27 @@ export default class CanvasDragger extends EventEmitter<any> {
         }
     }
 
-    private onDrop(e: MouseEvent) {
-        if (this.mouseDown)
-            this.emit('drop', this.getPoint(e), e);
-        this.mouseDown = false;
+    private onMouseDown(e: MouseEvent) {
+        this.isMouseDown = true;
+        this.emit('mouseDown', this.getPoint(e), e);
     }
 
-    private onDragging(e: MouseEvent) {
-        if (this.mouseDown)
-            this.emit('dragging', this.getPoint(e), e);
+    private onMouseOut(e: MouseEvent) {
+        this.isMouseDown = false;
+        this.emit('mouseOut', this.getPoint(e), e);
     }
 
-    private onDragStart(e: MouseEvent) {
-        this.mouseDown = true;
-        this.emit('dragstart', this.getPoint(e), e);
+    private onMouseMove(e: MouseEvent) {
+        this.isMouseDown ?
+            this.emit('dragging', this.getPoint(e), e) :
+            this.emit('mouseMove', this.getPoint(e), e);
     }
 
-    private preventDefault(e: MouseEvent) {
-        e.preventDefault();
+    private onMouseUp(e: MouseEvent) {
+        this.isMouseDown = false;
+        this.emit('mouseUp', this.getPoint(e), e);
     }
-    
+
     private getPoint(e: MouseEvent) {
         var rect = this.container.getBoundingClientRect();
         return new Point(e.clientX - rect.left, e.clientY - rect.top);

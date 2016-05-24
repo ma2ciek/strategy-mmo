@@ -1,6 +1,15 @@
 declare var System: any;
 {
-    let packages = {
+    interface IPackages {
+        [name: string]: IPackage;
+    }
+
+    interface IPackage {
+        defaultExtension?: string;
+        main?: string;
+    }
+
+    let packages: IPackages = {
         'browser': { defaultExtension: 'js' },
         'creator': { defaultExtension: 'js' },
         'shared': { defaultExtension: 'js' },

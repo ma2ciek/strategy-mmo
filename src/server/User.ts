@@ -44,7 +44,6 @@ export class User extends EventEmitter {
     }
     
     public updateResources() {
-        this.player.getTowns().map(town => town.updateResources());
         this.socket.emit('player-update', this.player.getData())
     }
 }

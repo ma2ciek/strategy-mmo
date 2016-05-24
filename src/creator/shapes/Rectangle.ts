@@ -15,6 +15,7 @@ export interface IRectangleOptions extends IShapeOptions {
 }
 
 export class Rectangle extends Shape implements IShape {
+    public type = 'rectangle';
     public width: number;
     public height: number;
     public color: string;

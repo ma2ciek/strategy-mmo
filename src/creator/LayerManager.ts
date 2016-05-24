@@ -21,10 +21,4 @@ export default class LayerManager {
         for (let i = 0; i < len; i++)
             fn(this.layers[i], i, this.layers);
     }
-
-    public backwardEach(fn: Function) {
-        let i = this.layers.length;
-        while (i--)
-            fn(this.layers[i], i, this.layers);
-    }
 }

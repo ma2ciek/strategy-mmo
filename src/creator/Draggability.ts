@@ -3,7 +3,7 @@ import EventEmitter from './utils/EventEmitter';
 import Point from './utils/Point';
 import CanvasDragger from './CanvasDragger';
 
-export default class Draggability extends EventEmitter {
+export default class Draggability extends EventEmitter<any> {
 
     private active: IShape;
     private mousePosition: Point;
@@ -34,16 +34,22 @@ export default class Draggability extends EventEmitter {
         if (!this.active)
             return;
 
-        this.isSpecial(e) ?
-            this.active.emit('dragstart', point) :
+        if (this.isSpecialKeyPressed(e))
+            this.active.emit('dragstart', point)
+        else {
+            this.active.emit('click');
+            this.active.emit('mouseDown');
             this.emit('dirt', this.active.getBoundingRect());
+        }
     }
 
     private onDragging(point: Point, e: MouseEvent) {
-        if (!this.active)
+        if (!this.active || !this.active.draggable)
             return;
 
-        if (this.isSpecial(e))
+        this.active.emit('mouseMove')
+
+        if (this.isSpecialKeyPressed(e))
             this.active.emit('dragging', point);
         else {
             this.emit('dirt', this.active.getBoundingRect());
@@ -54,12 +60,18 @@ export default class Draggability extends EventEmitter {
     }
 
     private onDrop(point: Point, e: MouseEvent) {
-        this.isSpecial(e) && this.active ?
-            this.active.emit('drop', point) :
+        if (!this.active)
+            return;
+
+        if (this.isSpecialKeyPressed(e))
+            this.active.emit('drop', point)
+        else {
+            this.active.emit('mouseUp');
             this.active = null;
+        }
     }
-    
-    private isSpecial(e: MouseEvent): boolean {
+
+    private isSpecialKeyPressed(e: MouseEvent): boolean {
         return e.which == 3;
     }
 }

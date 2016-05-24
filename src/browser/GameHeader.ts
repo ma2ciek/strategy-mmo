@@ -1,27 +1,32 @@
 import { Component } from '@angular/core';
 import { Town, IResources } from '../shared/Town';
 import { User } from './User';
+import KeyValuePipe from './pipes/KeyValuePipe';
 
 @Component({
     selector: 'game-header',
     template: `
         <div class="row">
             <div class="flex col-xs-6">
-                <button class="btn btn-default"><</button>
+                <button (click)="user.prevTown()" class="btn btn-default"><</button>
                 <div>Town #{{ id }} </div>
-                <button class="btn btn-default">></button>            
+                <button (click)="user.nextTown()" class="btn btn-default">></button>            
             </div>
             <div class="flex col-sx-6">
-                <div><label>Wood </label><span>{{ resources.wood }}</span></div>
-                <div><label>Stone </label><span>{{ resources.stone }}</span></div>
-                <div><label>Iron </label><span>{{ resources.iron }}</span></div>
+                <div *ngFor="let resource of resources | keyvalue">
+                    <label>{{ resource.key }}</label>
+                    <span>{{ resource.value }}</span>
+                    <span class="gold">(+{{ income[resource.key] }})</span>
+                </div>
             </div>
         </div>
     `,
     styles: [`
-        game-header {
+        :host {
+            display: block;
             padding: 2px;
             border-bottom: 2px solid #AAA;
+            background-color: #fff;
         }
         .flex {
             display: flex;
@@ -31,25 +36,26 @@ import { User } from './User';
         }
         .flex > * {
             margin: 0 5px;
-        }       
-    `]
+        }   
+        .gold {
+            color: gold;
+        }    
+    `],
+    pipes: [KeyValuePipe]
 })
 
 export default class GameHeader {
     private id: number;
-    private resources: IResources = {
-        wood: 0,
-        stone: 0,
-        iron: 0
-    };
+    private resources: IResources;
+    private income: IResources;
 
-    constructor(user: User) {
-        user.updateEmitter.subscribe(() =>
-            this.update(user.getActiveTown()));
+    constructor(private user: User) {
+        user.townEmitter.subscribe((town: Town) =>this.update(town));
     }
 
     public update(town: Town) {
         this.id = town.getId();
         this.resources = town.getResources();
+        this.income = town.getIncome();
     }
 }

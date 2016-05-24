@@ -19,12 +19,11 @@ app.use(express.static('build'));
 app.get('/', (req: any, res: any) =>
     res.sendFile('index.html'));
 
-io.on('connection', socket =>
-    game.get('userManager').handle(socket));
+io.on('connection', socket => {
+    const user = <UserManager><any> game.get('userManager');
+    user.handle(socket);
+    user.updateResources();    
+});
 
 server.listen(8080, () =>
     console.log('listening on *:8080'));
-
-global.setInterval(() => {
-    game.get('userManager').updateResources();
-}, 1000);

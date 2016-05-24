@@ -11,6 +11,7 @@ export interface ICircleOptions extends IShapeOptions {
 }
 
 export default class Circle extends Shape implements IShape {
+    public type = 'circle';    
     public radius: number;
     public color: string;
 

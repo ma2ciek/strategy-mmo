@@ -4,45 +4,58 @@ import { IPoint } from '../utils/Point';
 import util from '../utils/util';
 
 export interface IImageOptions extends IShapeOptions {
+    src: string;    
     width?: number;
     height?: number;
-    src: string;
 }
 
-export interface IImage extends IShape, IImageOptions { }
+export interface IImage extends IShape {
+    src: string;
+    width: number;
+    height: number;
+ }
 
 export class Image extends Shape implements IImage {
+    public type = 'image';
     public src: string;
+    
+    public width: number;
+    public height: number;
+    
     private el: HTMLImageElement;
 
     constructor(options: IImageOptions) {
         super(options);
 
         this.src = options.src;
-        this.initialize();
+        this.initialize(options);
     }
 
-    private initialize(): void {
-        this.el = util.createImage(this.src, () => this.emit('dirt'))
+    private initialize(options: IImageOptions) {
+        this.el = util.createImage(this.src, () => {
+            this.width = options.width || this.el.width;
+            this.height = options.height || this.el.height; 
+            this.emit('dirt');            
+        });
     }
 
-    public draw(ctx: CanvasRenderingContext2D): void {
+    public draw(ctx: CanvasRenderingContext2D) {
         if (!this.el.width)
             return;
 
-        ctx.drawImage(this.el, this.x, this.y, this.el.width, this.el.height);
+        ctx.drawImage(this.el, this.x, this.y, this.width, this.height);
     }
 
     public contains(p: IPoint): boolean {
-        return this.x + this.el.width > p.x &&
-            this.y + this.el.height > p.y &&
+        return this.x + this.width > p.x &&
+            this.y + this.height > p.y &&
             this.x < p.x &&
             this.y < p.y;
     }
 
     public containsRect(rect: IRect): boolean {
-        return this.x + this.el.width > rect.x &&
-            this.y + this.el.height > rect.y &&
+        return this.x + this.width > rect.x &&
+            this.y + this.height > rect.y &&
             this.x < rect.x + rect.width &&
             this.y < rect.y + rect.height;
     }
@@ -51,8 +64,8 @@ export class Image extends Shape implements IImage {
         return {
             x: this.x,
             y: this.y,
-            width: this.el.width,
-            height: this.el.height
+            width: this.width,
+            height: this.height
         };
     }
 }

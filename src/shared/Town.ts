@@ -13,10 +13,13 @@ export interface ITownObject extends ITownOptions {
 export interface ITownOptions {
     position: IPoint;
     ownerId: string;
+    income?: IResources;
     id?: number;
-    range?: number;
+    range: number;
     resources?: IResources;
     buildings?: Building[];
+    lastCalculationDate?: number;
+    queue?: IQueue;
 }
 
 export interface IResources {
@@ -26,36 +29,41 @@ export interface IResources {
     [name: string]: number;
 }
 
-let id = -1;
+export interface IQueue {
+
+}
+
+let id = 0;
 
 export class Town {
-    private range = 2;
+    private range: number;
     private buildings: Building[] = [];
     private resources: IResources;
-    private position: Point;
+    private position: IPoint;
     private ownerId: string;
     private id: number;
-
-    private initialSpeed: IResources = {
-        wood: 0.1,
-        stone: 0.05,
-        iron: 0.02
-    };
+    private queue: IQueue;
+    private income: IResources;
+    private lastCalculationDate: number;
 
     constructor(options: ITownOptions) {
         this.position = options.position;
-        this.resources = options.resources || {
-            wood: 100,
-            stone: 50,
-            iron: 20
-        };
-        this.id = typeof options.id == 'number' ? options.id : ++id;
+        this.resources = options.resources;
+        this.id = options.id || ++id;
         this.ownerId = options.ownerId;
         this.buildings = options.buildings || [];
+        this.range = options.range;
+        this.income = options.income;
+        this.queue = options.queue || [];
+        this.lastCalculationDate = options.lastCalculationDate || Date.now();
     }
 
     public static fromObject(config: ITownObject) {
         return new Town(config);
+    }
+
+    public toObject(): ITownObject {
+        return JSON.parse(JSON.stringify(this));
     }
 
     public getRange() {
@@ -70,35 +78,25 @@ export class Town {
         return this.id;
     }
 
-    public toObject(): ITownObject {
+    public getResources(): IResources {
+        const timeDelta = (Date.now() - this.lastCalculationDate) / (1000 * 60 * 60);
         return {
-            position: this.position,
-            range: this.range,
-            buildings: this.buildings,
-            resources: {
-                wood: this.resources.wood | 0,
-                stone: this.resources.stone | 0,
-                iron: this.resources.iron | 0,
-            },
-            ownerId: this.ownerId,
-            id: this.id
-        };
-    }
-
-    public updateResources() {
-        const resourceSpeed = this.getSpeed();
-        for (let name in resourceSpeed) {
-            this.resources[name] += resourceSpeed[name];
+            wood: this.getResource('wood', timeDelta),
+            stone: this.getResource('stone', timeDelta),
+            iron: this.getResource('iron', timeDelta)
         }
     }
-    
-    public getResources() {
-        return this.resources;
+
+    private getResource(name: string, timeDelta: number) {
+        return this.resources[name] + this.income[name] * timeDelta | 0;
     }
 
-    private getSpeed() {
-        // TODO
-        return this.initialSpeed;
+    public setIncome(income: IResources) {
+        this.income = income;
+    }
+
+    public getIncome() {
+        return this.income;
     }
 }
 

@@ -5,8 +5,8 @@ import * as winston from 'winston';
 import Tile from '../shared/Tile';
 
 export class GameMap {
-    private width = 1000;
-    private height = 1000;
+    private width = 100;
+    private height = 100;
     private map: Tile[];
 
     constructor() {

@@ -2,14 +2,26 @@ import { extend } from '../utils/util';
 import { IPoint } from '../utils/Point';
 import { IRect } from './Rectangle';
 import EventEmitter from '../utils/EventEmitter';
+import { CURSOR_DEFAULT } from '../config';
 
 export interface IShapeOptions {
     x: number;
     y: number;
-    draggable?: boolean;
+    draggable?: boolean; 
+    cursor?: string;
+    selectable?: boolean;    
 }
 
-export interface IShape extends EventEmitter, IShapeOptions {
+const defaultTrue = (x: any) => typeof x == 'boolean' ? x : true;
+
+export interface IShape extends EventEmitter<any>, IShapeOptions {
+    type: string;
+    x: number;
+    y: number;
+    draggable: boolean;
+    cursor: string;
+    selectable: boolean;
+    
     moveBy(p: IPoint): void;
     getBoundingRect(): IRect;
     containsRect(rect: IRect): boolean;
@@ -17,16 +29,20 @@ export interface IShape extends EventEmitter, IShapeOptions {
     draw(ctx: CanvasRenderingContext2D): void;
 }
 
-export class Shape extends EventEmitter {
+export class Shape extends EventEmitter<any> {
     public x: number;
     public y: number;
     public draggable: boolean;
+    public cursor: string;
+    public selectable: boolean;
 
     constructor(options: IShapeOptions) {
         super();
         this.x = options.x;
         this.y = options.y;
-        this.draggable = true;
+        this.draggable = !!options.draggable; // Default is false.
+        this.selectable = defaultTrue(options.selectable) 
+        this.cursor = options.cursor || CURSOR_DEFAULT;        
     }
 
     public moveBy(p: IPoint) {

@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "target": "es6",
         "declaration": true,
         "module": "commonjs",
         "moduleResolution": "node",
@@ -13,6 +14,7 @@
     },
     "filesGlob": [
         "typings/main.d.ts",
-        "src/**/*.ts"
+        "src/**/*.ts",
+        "src/canvas.d.ts"
     ]
 }

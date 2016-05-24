@@ -12,8 +12,10 @@
         "mime": "registry:dt/mime#0.0.0+20160316155526",
         "mocha": "registry:dt/mocha#2.2.5+20160317120654",
         "node": "registry:dt/node#4.0.0+20160423143914",
+        "promise": "registry:dt/promise#7.1.1+20160316171810",
         "react": "registry:dt/react#0.14.0+20160423065914",
         "react-dom": "registry:dt/react-dom#0.14.0+20160412154040",
+        "redux": "registry:dt/redux#3.3.1+20160326112656",
         "serve-static": "registry:dt/serve-static#0.0.0+20160317120654",
         "socket.io": "registry:dt/socket.io#1.4.4+20160317120654",
         "winston": "registry:dt/winston#0.0.0+20160417152829"

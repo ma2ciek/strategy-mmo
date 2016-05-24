@@ -10,8 +10,11 @@ export class Player {
 
     constructor(private map: GameMap, id: string) {
         this.townManager = new PlayerTownManager(map, id);
-        const point = map.randomPoint();
-        this.townManager.createTown(point);
+
+        this.townManager.createTown(map.randomPoint());
+        this.townManager.createTown(map.randomPoint());
+        this.townManager.createTown(map.randomPoint());
+        this.townManager.createTown(map.randomPoint());
     }
 
     public getData(): transfer.IClientData {

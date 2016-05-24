@@ -21,12 +21,26 @@ export class Point {
         this.x += p.x;
         this.y += p.y;
     }
+    
+    public subtract(p: IPoint) {
+        this.x -= p.x;
+        this.y -= p.y;
+    }
 
     public getSubtract(p: IPoint) {
         return new Point(
             this.x - p.x,
             this.y - p.y
         );
+    }
+    
+    public set(p: IPoint) {
+        this.x = p.x;
+        this.y = p.y;
+    }
+    
+    public static create(p: IPoint) {
+        return new Point(p.x, p.y);
     }
 }
 

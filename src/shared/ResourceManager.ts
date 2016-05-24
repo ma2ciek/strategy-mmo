@@ -3,7 +3,7 @@ export interface IResourceConfig {
     name: string;
 }
 
-export const resources = [
+export const resources: IResourceConfig[] = [
     { name: 'wood', chance: 4 },
     { name: 'stone', chance: 2 },
     { name: 'iron', chance: 1 },

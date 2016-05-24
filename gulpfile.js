@@ -7,7 +7,6 @@ const del = require('del');
 const ts = require('gulp-typescript');
 const sourcemaps = require('gulp-sourcemaps');
 const merge = require('merge2');
-const sh = require('shelljs');
 
 require('dotbin');
 
@@ -16,20 +15,15 @@ const config = ts.createProject('./tsconfig.json', {
     declaration: true
 });
 
-const testsConfig = ts.createProject('./tsconfig.json', {
-    module: 'require'
-});
-
 const files = ['typings/main.d.ts', 'src/**/*.ts'];
-const testsFiles = ['typings/browser.d.ts', 'test/**/*.ts'];
 const appName = require('./package.json').name;
 
 gulp.task('clean', 'Cleans the generated js files from build directory', function () {
     return del(['build/**/**']);
 });
 
-gulp.task('lintServer', 'Lints all TypeScript source files', () =>
-    gulp.src(serverFiles)
+gulp.task('lint', () =>
+    gulp.src(files)
         .pipe(tslint())
         .pipe(tslint.report('verbose'))
 );
@@ -38,25 +32,19 @@ const build = (files, config) => gulp.src(files).pipe(ts(config));
 const _merge = (result, dest) => merge([result.dts.pipe(gulp.dest(dest)), result.js.pipe(gulp.dest(dest))]);
 
 gulp.task('watch', 'Watches ts source files and runs build on change', () => {
-    gulp.watch('src/**/*.ts', ['build']);
-    gulp.watch('test/**/*.ts', ['build-tests']);
+    gulp.watch('src/**/*.ts', ['test']);
 });
 
-gulp.task('test', 'Runs the Jasmine test specs', () =>
-    gulp.src('test/**/*.js')
-        .pipe(mocha())
+gulp.task('test', ['build'], () =>
+    gulp.src('build/**/*-spec.js')
+        .pipe(mocha({ reporter: 'nyan' }))
 );
 
-gulp.task('build', ['build-ts'], () =>
+gulp.task('run', ['build'], () =>
     sh.exec('node build/server.js')
 );
 
-gulp.task('build-tests', () =>
-    build(testsFiles, testsConfig)
-        .pipe(gulp.dest('./test'))
-);
-
-gulp.task('build-ts', () => {
+gulp.task('build', () => {
     const result = build(files, config);
     return _merge(result, './build');
 });
@@ -71,7 +59,7 @@ gulp.task('lib', () => merge(
 
     gulp.src(['node_modules/@angular/**/*'])
         .pipe(gulp.dest('build/lib/@angular')),
-        
+
     gulp.src(['node_modules/rxjs/**/*'])
         .pipe(gulp.dest('build/lib/rxjs'))
 ));
